@@ -8526,6 +8526,7 @@ public class ReportTplServiceImpl extends ServiceImpl<ReportTplMapper, ReportTpl
 			this.processColumnStartCoords(columnStartCoords, luckySheetBindData, rowAndCol);
 		}
 		this.processForcePageBreak(extendParamData, rowAndCol.get("maxX"), luckySheetBindData);
+		this.processMovedImages(extendParamData.getJSONObject("images"), luckySheetBindData.getOriginalCoordsx(), luckySheetBindData.getOriginalCoordsy(), rowAndCol.get("maxX"), rowAndCol.get("maxY"), rowlen, columnlen);
 		String[] datasetNames = null;
 		if(luckySheetBindData.getDatasetNamesCache() == null) {
 			datasetNames = LuckysheetUtil.getDatasetNames(luckySheetBindData.getDatasetName());
