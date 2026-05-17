@@ -3320,6 +3320,8 @@ public class ReportTplServiceImpl extends ServiceImpl<ReportTplMapper, ReportTpl
 							bindData.setForcePagebreak(fixedCells.get(i).getForcePagebreak());
 							bindData.setEnableCollapse(fixedCells.get(i).getEnableCollapse());
 							bindData.setOperationCol(fixedCells.get(i).getIsOperationCol());
+							bindData.setIsDrill(fixedCells.get(i).getIsDrill());
+							bindData.setDrillId(fixedCells.get(i).getDrillId());
 //							if(StringUtil.isNotEmpty(fixedCells.get(i).getFormsAttrs())) {
 //								JSONObject formsAttrs = JSON.parseObject(fixedCells.get(i).getFormsAttrs());
 //								boolean isOperationCol =  formsAttrs.getBooleanValue("isOperationCol");
@@ -3540,6 +3542,8 @@ public class ReportTplServiceImpl extends ServiceImpl<ReportTplMapper, ReportTpl
 							bindData.setForcePagebreak(fixedCells.get(i).getForcePagebreak());
 							bindData.setEnableCollapse(fixedCells.get(i).getEnableCollapse());
 							bindData.setOperationCol(fixedCells.get(i).getIsOperationCol());
+							bindData.setIsDrill(fixedCells.get(i).getIsDrill());
+							bindData.setDrillId(fixedCells.get(i).getDrillId());
 							try {
 								bindData.setCellData(objectMapper.readValue(fixedCells.get(i).getCellData(), Map.class));
 							} catch (Exception e) {
@@ -4851,7 +4855,7 @@ public class ReportTplServiceImpl extends ServiceImpl<ReportTplMapper, ReportTpl
 			this.processFixedValue(maxCoordinate, bindData, mergeMap,configRowLen, configColumnLen, 
 				rowlen, columnlen, cellDatas, hyperlinks,dataRowLen,dataColLen,maxXAndY,borderInfo,borderConfig,borderInfos,calcChain
 				,images,objectMapper,usedCells,nowFunction,chartCells,dataVerification,rowhidden,colhidden,cellConditionFormat,subtotalCellDatas,subtotalRows,subTotalDigits,coverCells
-				,columnStartCoords,extendCellOrigin,dynamicRange,subTotalCellCoords,isExport,userInfoDto,viewParams,extendParamData);
+				,columnStartCoords,extendCellOrigin,dynamicRange,subTotalCellCoords,isExport,userInfoDto,viewParams,extendParamData,drillCells);
 		}else if(CellValueTypeEnum.BLOCK.getCode().intValue() == bindData.getCellValueType())
 		{
 			this.processBlocks(maxCoordinate, bindData, mergeMap,configRowLen, configColumnLen, 
@@ -5926,7 +5930,7 @@ public class ReportTplServiceImpl extends ServiceImpl<ReportTplMapper, ReportTpl
 			Map<String, Object> borderInfo,List<Map<String, Object>> borderConfig,List<Object> borderInfos,List<JSONObject> calcChain, List<JSONObject> images
 			,ObjectMapper objectMapper,Map<String, Map<String, Object>> usedCells,Map<String, Object> nowFunction,JSONObject chartCells,JSONObject dataVerification,Object rowhidden,Object colhidden
 			,Map<String, JSONArray> cellConditionFormat,Map<String, Object> subtotalCellDatas,Map<String, JSONObject> subtotalRows,Map<String, JSONObject> subTotalDigits,Map<String, LuckySheetBindData> coverCells
-			,Map<String, JSONObject> columnStartCoords,Map<String, JSONObject> extendCellOrigin,JSONObject dynamicRange,List<String> subTotalCellCoords,boolean isExport,UserInfoDto userInfoDto,Map<String, Object> viewParams,JSONObject extendParamData) throws JsonMappingException, JsonProcessingException {
+			,Map<String, JSONObject> columnStartCoords,Map<String, JSONObject> extendCellOrigin,JSONObject dynamicRange,List<String> subTotalCellCoords,boolean isExport,UserInfoDto userInfoDto,Map<String, Object> viewParams,JSONObject extendParamData,JSONObject drillCells) throws JsonMappingException, JsonProcessingException {
 //		List<Map<String, Object>> border = this.getBorderType(borderConfig, luckySheetBindData.getCoordsx(), luckySheetBindData.getCoordsy());//获取该单元格的边框信息
 		List<Map<String, Object>> border = null;
 		if(!borderInfo.containsKey(luckySheetBindData.getCoordsx()+LuckySheetPropsEnum.COORDINATECONNECTOR.getCode()+luckySheetBindData.getCoordsy()))
@@ -6165,6 +6169,15 @@ public class ReportTplServiceImpl extends ServiceImpl<ReportTplMapper, ReportTpl
 				dataVerification.put(key, objectMapper.readValue(luckySheetBindData.getDataVerification(), JSONObject.class));
 			}
 		}
+		if(luckySheetBindData.getIsDrill() && drillCells != null)
+    	{
+			String key = luckySheetBindData.getCellData().get(LuckySheetPropsEnum.R.getCode())+"_"+luckySheetBindData.getCellData().get(LuckySheetPropsEnum.C.getCode());
+    		JSONObject drillInfo = new JSONObject();
+    		drillInfo.put(LuckySheetPropsEnum.DRILLID.getCode(), luckySheetBindData.getDrillId()+"");
+    		JSONObject drillParams = getDrillParams(null,luckySheetBindData.getDrillAttrs());
+    		drillInfo.put(LuckySheetPropsEnum.DRILLPARAMS.getCode(), drillParams);
+    		drillCells.put(key, drillInfo);
+    	}
 		if(YesNoEnum.YES.getCode().intValue() == luckySheetBindData.getIsRelyCell().intValue()) {
         	this.processConditionFormat(luckySheetBindData, cellConditionFormat, rowAndCol.get("maxX").intValue(), rowAndCol.get("maxY").intValue(), luckySheetBindData.getRelyIndex() == 0);
         }else {
@@ -8225,7 +8238,7 @@ public class ReportTplServiceImpl extends ServiceImpl<ReportTplMapper, ReportTpl
 				this.processFixedValue(maxCoordinate, luckySheetBindData, mergeMap,configRowLen, configColumnLen, 
 						rowlen, columnlen, cellDatas, hyperlinks,dataRowLen,dataColLen,maxXAndY,borderInfo,borderConfig,borderInfos,calcChain
 						,images,objectMapper,usedCells,nowFunction,null,dataVerification,rowhidden,colhidden,cellConditionFormat,subtotalCellDatas,subtotalRows,subTotalDigits,coverCells
-						,columnStartCoords,extendCellOrigin,dynamicRange,subTotalCellCoords,isExport,userInfoDto,viewParams,extendParamData);
+						,columnStartCoords,extendCellOrigin,dynamicRange,subTotalCellCoords,isExport,userInfoDto,viewParams,extendParamData,drillCells);
 			}
 			
 		}
