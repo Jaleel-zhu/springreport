@@ -5164,6 +5164,7 @@ public class ReportTplServiceImpl extends ServiceImpl<ReportTplMapper, ReportTpl
 							}
 							maxXAndY.put("maxX", maxX);
 							maxXAndY.put("maxY", maxY);
+							this.processBlocksMovedImages(extendParamData.getJSONObject("images"), luckysheetReportBlockCells.get(t).getCoordsx(), luckysheetReportBlockCells.get(t).getCoordsy(), maxRow, maxCol, rowlen, columnlen,removeImgKeys,newImages);
 						}else {
 							if(m == 0)
 							{
@@ -5760,7 +5761,7 @@ public class ReportTplServiceImpl extends ServiceImpl<ReportTplMapper, ReportTpl
 												this.processDynamicRange(luckySheetBindData, dynamicRange, maxRow, maxCol, cellData,1);
 												cellDatas.add(cellData);
 												if(YesNoEnum.YES.getCode().intValue() == luckysheetReportBlockCells.get(t).getIsMerge().intValue()) {
-													for (int k = 0; k < luckysheetReportBlockCells.get(t).getRowSpan(); k++) {
+													for (int k = 0; k < luckysheetReportBlockCells.get(t).getRowSpan()*datas.size(); k++) {
 														for (int k2 = 0; k2 < luckysheetReportBlockCells.get(t).getColSpan(); k2++) {
 															if(k != 0 || k2 != 0)
 															{
@@ -5774,6 +5775,24 @@ public class ReportTplServiceImpl extends ServiceImpl<ReportTplMapper, ReportTpl
 																mergeCellData.put(LuckySheetPropsEnum.C.getCode(), maxCol+k2);
 																mergeCellData.put(LuckySheetPropsEnum.CELLCONFIG.getCode(), cellValue);
 																cellDatas.add(mergeCellData);
+																Object mcDataRowLen = configRowLen.get(String.valueOf(luckysheetReportBlockCells.get(t).getCoordsx()+k));
+																Object mcDataColLen = configColumnLen.get(String.valueOf(luckysheetReportBlockCells.get(t).getCoordsy()+k2));
+																if(mcDataRowLen != null)
+																{
+																	if(rowlen.get(String.valueOf(maxRow+k))==null)
+																	{
+																		rowlen.put(String.valueOf(maxRow+k), mcDataRowLen);
+																	}
+																}
+																if(mcDataColLen != null)
+																{
+																	if(columnlen.get(String.valueOf(maxCol+k2))== null)
+																	{
+																		columnlen.put(String.valueOf(maxCol+k2), mcDataColLen);
+																	}
+																}
+																usedCells.put((maxRow+k)+"_"+(maxCol+k2), cellData);
+															}else {
 																Object mcDataRowLen = configRowLen.get(String.valueOf(luckysheetReportBlockCells.get(t).getCoordsx()+k));
 																Object mcDataColLen = configColumnLen.get(String.valueOf(luckysheetReportBlockCells.get(t).getCoordsy()+k2));
 																if(mcDataRowLen != null)
@@ -5825,12 +5844,12 @@ public class ReportTplServiceImpl extends ServiceImpl<ReportTplMapper, ReportTpl
 													if(z == 0) {
 														String key = "y-"+(luckysheetReportBlockCells.get(t).getCoordsy()+i+ (loopCount-1)*cols.size()+(hloopEmptyCount*(loopCount-1)));
 														if(!maxCoordinate.containsKey(key) || maxRow+luckysheetReportBlockCells.get(t).getRowSpan()>maxCoordinate.get(key)) {
-															maxCoordinate.put(key, maxRow+luckysheetReportBlockCells.get(t).getRowSpan());
+															maxCoordinate.put(key, maxRow+luckysheetReportBlockCells.get(t).getRowSpan()*datas.size());
 														}
 													}else {
 														String key = "y-"+(luckysheetReportBlockCells.get(t).getCoordsy()+i+ (z-1)*cols.size()+hloopEmptyCount*(z-1));
 														if(!maxCoordinate.containsKey(key) || maxRow+luckysheetReportBlockCells.get(t).getRowSpan()>maxCoordinate.get(key)) {
-															maxCoordinate.put(key, maxRow+luckysheetReportBlockCells.get(t).getRowSpan());
+															maxCoordinate.put(key, maxRow+luckysheetReportBlockCells.get(t).getRowSpan()*datas.size());
 														}
 													}
 												}
